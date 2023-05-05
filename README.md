@@ -1,4 +1,4 @@
-# foreman-notif
+# patch-notif
 
 ## Description
 
