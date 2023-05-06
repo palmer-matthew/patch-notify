@@ -3,7 +3,7 @@ from dotenv import dotenv_values, load_dotenv
 """
     Name: 
     
-    load_env_from_path 
+    load_env_as_dict 
     
     Desc: 
 
@@ -16,7 +16,7 @@ from dotenv import dotenv_values, load_dotenv
 
     Dictionary with Values || Empty Dictionary
 """
-def load_env_from_path(path: str=None):
+def load_env_as_dict(path: str=None):
     if path is None:
         path = ".env"
     try:
