@@ -98,14 +98,13 @@ def retrieve_host_collections(context: dict={}):
     if host_collections == []:
         print("Unable to retrieve host collections information from API. Please try again next time")
         sys.exit()
-        
+
     return { "host_collections": host_collections  }
 
 def display_help():
     pass
 
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) == 1:
         display_help()
         sys.exit()
@@ -120,6 +119,11 @@ if __name__ == "__main__":
             context = initialize_context(path)
             hosts = retrieve_hosts(context)
             host_collections = retrieve_host_collections(context)
+
+
+if __name__ == "__main__":
+    #main()
+    pass
             
         
 
