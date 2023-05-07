@@ -1,5 +1,6 @@
 from requests import get
 from requests.auth import HTTPBasicAuth
+from json import load
 
 def get_data(url: str=None):
     """
@@ -67,4 +68,9 @@ def get_data_basic_auth(url: str=None, username:str=None, passwd: str=None):
     else:
         data = {}
     
+    return data
+
+def simulate_api_call(path):
+    with open(path, "r") as file:
+        data = load(file)
     return data
