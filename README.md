@@ -1,4 +1,4 @@
-# patch-notif
+# patch-notify
 
 ## Description
 
