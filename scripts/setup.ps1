@@ -3,10 +3,10 @@ if (-not (Test-Path -Path "$env:USERPROFILE\env")) {
   python -m venv $env:USERPROFILE\env
 
   # Activate the Python virtual environment 
-  & $env:USERPROFILE\env\Scripts\Activate.ps
+  & $env:USERPROFILE\env\Scripts\Activate.ps1
 
   # Install the requirements of the project if not installed
-  python -m pip install -r "requirements.txt"
+  python -m pip install -r "..\requirements.txt"
 }
 
 Exit 0
