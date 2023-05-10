@@ -114,6 +114,32 @@ def populate_external(data: dict=None, hosts: list=[]):
     
     return hosts 
 
+def add_patching_dates(data: dict={}):
+    pass
+
+def remove_uneligible(data: dict={}):
+    """
+    """
+    new_lst = []
+    for host in data['results']:
+        if host['security_count'] > 0:
+            new_lst.append(host)
+            continue
+        
+        if host['bugfix_count'] > 0:
+            new_lst.append(host)
+            continue
+
+        if host['enhancement_count'] > 0:
+            new_lst.append(host)
+            continue
+
+        if host['package_count'] > 0:
+            new_lst.append(host)
+            continue
+
+    return {'results': new_lst }
+
 def extrapolate(data: dict={}, filter: str="default"):
     """
     """
@@ -144,18 +170,8 @@ def extrapolate(data: dict={}, filter: str="default"):
                 inner_result[contacts] = sample[sample["additional_contacts"] == contacts]
 
             result[collection] = inner_result 
-            
+
         return result
-
-"""
-TODO:
-
-- Write a function / functions to perform sorting and extrapolation of data needed for each email
-
-The Objective: Once we have the data in the format we want it, it needs to be sorted based on Host Collection or By Owner
-so we can send emails with customized information to that particular business owner. Also we do have to consider 
-servers that have no patches applicable as well as issues with subscriptions that presents variables.
-"""
 
 
 # Testing Purposes
