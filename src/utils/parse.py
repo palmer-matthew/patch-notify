@@ -30,6 +30,13 @@ def csv_to_json(path: str):
 
     return { "results": data_json }
 
+def json_to_dataframe(lst: object):
+    """
+    """
+    dataframe = pd.read_json(json.dumps(lst), orient='records')
+    
+    return dataframe
+
 
 def reformat_structure(hosts: dict=None, host_coll: dict=None):
     """
@@ -49,7 +56,7 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
 
         # Gather the required data from the hosts JSON data
         host_format["host_id"] = host["id"]
-        host_format["hostname"] = host["name"] or host["certname"]
+        host_format["hostname"] = host["name"]
         host_format["ip_address"] = host["ip"]
         host_format["location"] = host["location_name"]
         host_format["model"] = host["model_name"]
@@ -59,7 +66,7 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
         host_format["security_count"] = host["content_facet_attributes"]["errata_counts"]["security"]
         host_format["bugfix_count"] = host["content_facet_attributes"]["errata_counts"]["bugfix"]
         host_format["enhancement_count"] = host["content_facet_attributes"]["errata_counts"]["enhancement"]
-        host_format["package_up_count"] = host["content_facet_attributes"]["applicable_package_count"] or host["content_facet_attributes"]["upgradable_package_count"]
+        host_format["package_count"] = host["content_facet_attributes"]["upgradable_package_count"]
         host_format["host_collection"] = None
         host_format["host_collection_id"] = None
         host_format["additional_contacts"] = None
@@ -81,7 +88,6 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
             hosts_list[HOST_MAP[host_id]]["host_collection_id"] = collection["id"]
     
     return hosts_list
-    # output_json(hosts_list)
 
 def populate_external(data: dict=None, hosts: list=[]):
     """
@@ -106,12 +112,44 @@ def populate_external(data: dict=None, hosts: list=[]):
         hosts['results'][index]["presentation_name"] = record["Host Name"]
         hosts['results'][index]["ip_address"] = record["IP Address"]
     
-    return hosts    
+    return hosts 
+
+def extrapolate(data: dict={}, filter: str="default"):
+    """
+    """
+    main_df =  json_to_dataframe(data['results'])
+
+    if filter == "default":
+        sort_by = main_df["additional_contacts"].unique()
+        
+        result = {}
+
+        for contacts in sort_by:
+            result[contacts] = main_df[main_df["additional_contacts"] == contacts].sort_values(by="host_collection")
+        
+        return result
+    elif filter == "collection":
+        sort_by = main_df["host_collection"].unique()
+
+        result = {}
+
+        for collection in sort_by:
+            sample = main_df[main_df["host_collection"] == collection]
+
+            sort_ls = sample["additional_contacts"].unique()
+
+            inner_result = {}
+
+            for contacts in sort_ls:
+                inner_result[contacts] = sample[sample["additional_contacts"] == contacts]
+
+            result[collection] = inner_result 
+            
+        return result
 
 """
 TODO:
 
-- Write a function that will create a DataFrame from the reformatted host_list
 - Write a function / functions to perform sorting and extrapolation of data needed for each email
 
 The Objective: Once we have the data in the format we want it, it needs to be sorted based on Host Collection or By Owner
@@ -125,5 +163,9 @@ servers that have no patches applicable as well as issues with subscriptions tha
 # host_collection = simulate_api_call('../json-foreman/host_collection.json')
 # hosts_data = simulate_api_call('../json-foreman/hosts.json')
 # reformat_structure(hosts_data,host_collection)
+# items_to_display=["host_id", "hostname" , "ip_address","location", "model", "owner", "os", "lifecycle_environment", \
+#            "security_count", "bugfix_count", "enhancement_count", "package_up_count", "host_collection", "host_collection_id", \
+#            "additional_contacts", "owner_email", "presentation_name"]
+# result[contacts] = main_df[main_df["additional_contacts"] == contacts].filter(items=['hostname', "additional_contacts", "host_collection"]).sort_values(by="host_collection")
 
         
