@@ -1,12 +1,36 @@
 import pandas as pd
 import json
 
+def generate_host_map(lst: list=[], key: str="host_id"):
+    """
+    """
+    if lst == []:
+        raise Exception("Please provide required arguments for host map generation")
+    
+    HOST_MAP = {}
+
+    # Populate HOST_MAP
+    for index, host in enumerate(lst):
+        HOST_MAP[host[key]] = index
+    
+    return HOST_MAP
+
+def output_json(lst):
+    """
+    """
+    with open("src/utils/test.json", "w") as file:
+        file.write(json.dumps({
+            "results": lst
+        }, indent=4))
+
 
 def reformat_structure(hosts: dict=None, host_coll: dict=None):
     """
     """  
+    if hosts == {} or host_coll == {}:
+        raise Exception("Unable to parse host and host collection data. Try again")
+    
     hosts_list = []
-    HOST_MAP = {}
 
     for host in hosts["results"]:
 
@@ -33,6 +57,7 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
         host_format["host_collection_id"] = None
         host_format["additional_contacts"] = None
         host_format["owner_email"] = None
+        host_format["presentation_name"] = None
         
         hosts_list.append(host_format)
     
@@ -40,9 +65,7 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
 
     hosts_list = sorted(hosts_list, key=lambda item: item["host_id"])
 
-    # Populate HOST_MAP
-    for index, host in enumerate(hosts_list):
-        HOST_MAP[host["host_id"]] = index
+    HOST_MAP = generate_host_map(hosts_list)
 
     # Populate the Hosts with Correct Host Collection Information
     for collection in host_coll["host_collections"]:
@@ -51,14 +74,42 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
             hosts_list[HOST_MAP[host_id]]["host_collection_id"] = collection["id"]
     
     return hosts_list
-
     # output_json(hosts_list)
 
-def output_json(lst):
-    with open("src/utils/test.json", "w") as file:
-        file.write(json.dumps({
-            "results": lst
-        }, indent=4))
+def populate_external(data: dict=None, hosts: list=[]):
+    """
+    """
+    if hosts == []:
+        raise Exception("Unable to parse host and host collection data. Try again")
+    
+    if data == {}:
+        raise Exception("Unable to data from csv. Try again")
+    
+    HOST_MAP = generate_host_map(hosts, "name")
+
+    # data_csv = pd.read_csv("src/data/data.csv") #engine="python", encoding="latin-1")
+    # data_json = data_csv.to_json(orient="records")
+
+    for record in data:
+        index = HOST_MAP[record["Asset Name"]]
+        hosts[index]["additional_contacts"] = record["Additional Contacts"]
+        hosts[index]["owner_email"] = record["Application Owner"]
+        hosts[index]["presentation_name"] = record["Hostname"]
+        hosts[index]["ip_address"] = record["IP Address"]
+    
+    return hosts    
+
+"""
+TODO:
+
+- Test populate_external using data
+- Write a function that will create a DataFrame from the reformatted host_list
+- Write a function / functions to perform sorting and extrapolation of data needed for each email
+
+The Objective: Once we have the data in the format we want it, it needs to be sorted based on Host Collection or By Owner
+so we can send emails with customized information to that particular business owner. Also we do have to consider 
+servers that have no patches applicable as well as issues with subscriptions that presents variables.
+"""
 
 
 # Testing Purposes
