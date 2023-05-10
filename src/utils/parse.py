@@ -15,13 +15,20 @@ def generate_host_map(lst: list=[], key: str="host_id"):
     
     return HOST_MAP
 
-def output_json(lst):
+def output_json(obj: object, path: str):
     """
     """
-    with open("src/utils/test.json", "w") as file:
-        file.write(json.dumps({
-            "results": lst
-        }, indent=4))
+    with open(path, "w") as file:
+        file.write(json.dumps(obj, indent=4))
+
+def csv_to_json(path: str):
+    """
+    """
+    data_csv = pd.read_csv(path)
+    
+    data_json = json.loads(data_csv.to_json(orient="records"))
+
+    return { "results": data_json }
 
 
 def reformat_structure(hosts: dict=None, host_coll: dict=None):
@@ -85,24 +92,25 @@ def populate_external(data: dict=None, hosts: list=[]):
     if data == {}:
         raise Exception("Unable to data from csv. Try again")
     
-    HOST_MAP = generate_host_map(hosts, "name")
+    HOST_MAP = generate_host_map(hosts['results'], "hostname")
 
-    # data_csv = pd.read_csv("src/data/data.csv") #engine="python", encoding="latin-1")
-    # data_json = data_csv.to_json(orient="records")
+    for record in data['results']:
 
-    for record in data:
+        if record['Asset Name'] == "Not Onboarded":
+            continue
+
         index = HOST_MAP[record["Asset Name"]]
-        hosts[index]["additional_contacts"] = record["Additional Contacts"]
-        hosts[index]["owner_email"] = record["Application Owner"]
-        hosts[index]["presentation_name"] = record["Hostname"]
-        hosts[index]["ip_address"] = record["IP Address"]
+        hosts['results'][index]["additional_contacts"] = record["Additional Contacts"]
+        hosts['results'][index]["owner"] = record["Business Owner"]
+        hosts['results'][index]["owner_email"] = record["Email Address"]
+        hosts['results'][index]["presentation_name"] = record["Host Name"]
+        hosts['results'][index]["ip_address"] = record["IP Address"]
     
     return hosts    
 
 """
 TODO:
 
-- Test populate_external using data
 - Write a function that will create a DataFrame from the reformatted host_list
 - Write a function / functions to perform sorting and extrapolation of data needed for each email
 
