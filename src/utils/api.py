@@ -22,7 +22,7 @@ def get_data(url: str=None):
         raise Exception("API Url has not been defined. Please provide argument")
 
     # Makes a GET request to the specified url 
-    response = get(url)
+    response = get(url, verify=False)
 
     if response.status_code == 200:
         data = response.json()
@@ -61,7 +61,7 @@ def get_data_basic_auth(url: str=None, username:str=None, passwd: str=None):
     authobject = HTTPBasicAuth(username=username, password=passwd)
 
     # Makes a GET request to the specified url along with the attached Basic Auth object
-    response = get(url, auth=authobject)
+    response = get(url, auth=authobject, verify=False)
 
     if response.status_code == 200:
         data = response.json()
@@ -70,7 +70,7 @@ def get_data_basic_auth(url: str=None, username:str=None, passwd: str=None):
     
     return data
 
-def simulate_api_call(path):
+def simulate_api_call(path: str = ""):
     with open(path, "r") as file:
         data = load(file)
     return data
