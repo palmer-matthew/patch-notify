@@ -118,26 +118,41 @@ def main():
             print("Please provide the path to the environment variables file")
             sys.exit()
         else:
+            # Intialize the program instance with environment variables needed for functionality
             context = initialize_context(path)
-            # Actual Code, Tested on Local Instance
-            # hosts = retrieve_hosts(context)
-            # host_collections = retrieve_host_collections(context)
-            # reformat_hosts = reformat_structure(hosts,host_collections)
-            # external_data = csv_to_json("src/data/data.csv")
-            # data = populate_external(external_data, reformat_hosts)
-            # data = remove_uneligible(data)
-            # date_map = find_patch_dates()
-            # data = add_patching_dates(data, date_map)
-            # extrapolate(complete_data, "collection")
+
+            # API Calls to the Local Application to retieve information on hosts and host collections
+            hosts = retrieve_hosts(context)
+            host_collections = retrieve_host_collections(context)
+
+            # Make modification to the structure of JSON Data retrieved from the application instance 
+            reformat_hosts = reformat_structure(hosts,host_collections)
+
+            # Add information from an external data source to the JSON Data
+            external_data = csv_to_json(context['DATA_FILE'])
+            data = populate_external(external_data, reformat_hosts)
+
+            # Add patch schedule information to the JSON Data
+            date_map = find_patch_dates()
+            data = add_patching_dates(data, date_map)
+
+            # Remove hosts that are not eligible for patching this cycle.
+            data = remove_uneligible(data)
+            
+            extrapolate(data, "collection")
 
             # Testing Puposes
             # hosts = simulate_api_call("src/data/hosts.json")
             # host_collections = simulate_api_call("src/data/host_collections.json")
+            # reformat_hosts = reformat_structure(hosts,host_collections)
             # reformat_hosts = simulate_api_call("src/data/reformat_hosts.json")
             # external_data = csv_to_json(context['DATA_FILE'])
-            # reformat_hosts = reformat_structure(hosts,host_collections)
             # data = populate_external(external_data, reformat_hosts)
+            # date_map = find_patch_dates()
+            # data = add_patching_dates(data, date_map)
             # output_json(data, "src/data/complete_data.json")
+            # data = remove_uneligible(data)
+            # output_json(data, "src/data/removed.json")
             # complete_data = simulate_api_call("src/data/complete_data.json")
             # complete_data = remove_uneligible(complete_data)
             # output_json(complete_data, "src/data/removed.json")
