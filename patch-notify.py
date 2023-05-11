@@ -138,21 +138,10 @@ def main():
 
             # Remove hosts that are not eligible for patching this cycle.
             data = remove_uneligible(data)
-            
-            extrapolate(data, "collection")
+
+            # extrapolate(data, "collection")
 
             # Testing Puposes
-            # hosts = simulate_api_call("src/data/hosts.json")
-            # host_collections = simulate_api_call("src/data/host_collections.json")
-            # reformat_hosts = reformat_structure(hosts,host_collections)
-            # reformat_hosts = simulate_api_call("src/data/reformat_hosts.json")
-            # external_data = csv_to_json(context['DATA_FILE'])
-            # data = populate_external(external_data, reformat_hosts)
-            # date_map = find_patch_dates()
-            # data = add_patching_dates(data, date_map)
-            # output_json(data, "src/data/complete_data.json")
-            # data = remove_uneligible(data)
-            # output_json(data, "src/data/removed.json")
             # complete_data = simulate_api_call("src/data/complete_data.json")
             # complete_data = remove_uneligible(complete_data)
             # output_json(complete_data, "src/data/removed.json")
