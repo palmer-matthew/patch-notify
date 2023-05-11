@@ -27,4 +27,5 @@ def find_patch_dates():
                             monthly_patch_dates["3rd Thu"] = day
                         elif thursday == 4:
                             monthly_patch_dates["4th Thu"] = day
+    monthly_patch_dates['TBD'] = 'TBD'
     return monthly_patch_dates

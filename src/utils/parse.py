@@ -87,7 +87,7 @@ def reformat_structure(hosts: dict=None, host_coll: dict=None):
             hosts_list[HOST_MAP[host_id]]["host_collection"] = collection["name"]
             hosts_list[HOST_MAP[host_id]]["host_collection_id"] = collection["id"]
     
-    return hosts_list
+    return { 'results': hosts_list }
 
 def populate_external(data: dict=None, hosts: list=[]):
     """
@@ -117,10 +117,29 @@ def populate_external(data: dict=None, hosts: list=[]):
 def add_patching_dates(data: dict={}, date_map: dict={}):
     """
     """
+    MAP = {
+        1: '2nd Thu',
+        2: '3rd Tue',
+        3: '2nd Thu',
+        4: '2nd Thu',
+        5: 'TBD',
+        6: '3rd Thu',
+        7: '4th Tue',
+        8: '4th Thu'
+    }
+
     for host in data['results']:
-        # host["patch_date"] =
-        pass 
-    pass
+        id = host['host_collection_id']
+        if id is None:
+            continue
+        date = MAP[id]
+        host['patch_schedule'] = date
+        if not date == 'TBD':
+            host["patch_date"] = date_map[date].strftime("%a - %b %d, %Y")
+        else:
+            host["patch_date"] = date_map[date]
+
+    return data
 
 def remove_uneligible(data: dict={}):
     """
