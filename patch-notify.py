@@ -1,7 +1,8 @@
 import sys
 from src.utils.api import get_data_basic_auth, simulate_api_call
 from src.utils.config import load_env_as_dict
-from src.utils.parse import output_json,reformat_structure,populate_external,csv_to_json,json_to_dataframe,extrapolate,remove_uneligible
+from src.utils.parse import output_json,reformat_structure,populate_external,csv_to_json,json_to_dataframe,extrapolate,remove_uneligible,add_patching_dates
+from src.utils.date import find_patch_dates
 
 ROUTES = {
     "all_hosts": 'api/hosts?per_page=all',
@@ -124,6 +125,10 @@ def main():
             # reformat_hosts = reformat_structure(hosts,host_collections)
             # external_data = csv_to_json("src/data/data.csv")
             # data = populate_external(external_data, reformat_hosts)
+            # data = remove_uneligible(data)
+            # date_map = find_patch_dates()
+            # data = add_patching_dates(data, date_map)
+            # extrapolate(complete_data, "collection")
 
             # Testing Puposes
             # hosts = simulate_api_call("src/data/hosts.json")
@@ -133,10 +138,11 @@ def main():
             # reformat_hosts = reformat_structure(hosts,host_collections)
             # data = populate_external(external_data, reformat_hosts)
             # output_json(data, "src/data/complete_data.json")
-            complete_data = simulate_api_call("src/data/complete_data.json")
-            complete_data = remove_uneligible(complete_data)
+            # complete_data = simulate_api_call("src/data/complete_data.json")
+            # complete_data = remove_uneligible(complete_data)
             # output_json(complete_data, "src/data/removed.json")
-            extrapolate(complete_data, "collection")
+            # extrapolate(complete_data, "collection")
+            
 
 
 if __name__ == "__main__":
