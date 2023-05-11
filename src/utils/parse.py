@@ -114,7 +114,12 @@ def populate_external(data: dict=None, hosts: list=[]):
     
     return hosts 
 
-def add_patching_dates(data: dict={}):
+def add_patching_dates(data: dict={}, date_map: dict={}):
+    """
+    """
+    for host in data['results']:
+        # host["patch_date"] =
+        pass 
     pass
 
 def remove_uneligible(data: dict={}):
