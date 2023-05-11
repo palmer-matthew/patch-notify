@@ -31,7 +31,7 @@ It would be a good idea to keep a local stable branch of the project code on you
 Remember to run these commands before starting development:
 
 ```bash
-$ python -m venv venv (you may need to use python3 instead)
+$ python3 -m venv venv
 $ source venv/bin/activate (or .\venv\Scripts\activate on Windows)
 $ pip install -r requirements.txt
 ```
