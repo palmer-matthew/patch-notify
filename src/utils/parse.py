@@ -175,7 +175,7 @@ def extrapolate(data: dict={}, filter: str="default"):
         result = {}
 
         for contacts in sort_by:
-            result[contacts] = main_df[main_df["additional_contacts"] == contacts].sort_values(by="host_collection")
+            result[contacts] = main_df[main_df["additional_contacts"] == contacts].sort_values(by="patch_schedule")
         
         return result
     elif filter == "collection":
@@ -184,7 +184,7 @@ def extrapolate(data: dict={}, filter: str="default"):
         result = {}
 
         for collection in sort_by:
-            sample = main_df[main_df["host_collection"] == collection]
+            sample = main_df[main_df["patch_schedule"] == collection]
 
             sort_ls = sample["additional_contacts"].unique()
 
