@@ -13,7 +13,7 @@ style = """
     body{
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
         background-color: #f5f5f5;
-        padding: 10px 15px;
+        padding: 5px 20px;
     }
     .info{
         display: block;
@@ -58,7 +58,7 @@ day_before = """
     <div>
         <br><br> Good Day Team / Application Owner,
         <br><br> Please be advised of the following servers eligible for patching <b> tomorrow </b>:
-        <br><br><b> Scheduled Time: </b> {date_scheduled} | 8:30 PM to 7:00 AM GMT-5 [JA Time]
+        <br><br><b> Scheduled Time: {date_scheduled} | 8:30 PM to 7:00 AM GMT-5 [JA Time] </b>
     </div>
     <div style="margin: 20px 0px 10px 0px;">{host_table}</div>
     <div>
@@ -87,7 +87,7 @@ day_before = """
                 There will be a bridge available to facilitate this pacthing session and address any issues that may arise during the process.
                 An invite will be sent to you before the patching session begins.
             </li>
-            <li>This activity is considered BAU and priority as such if you require a CRQ for your stakeholders, you will be responsible for its creation.</li><br>
+            <li>This activity is considered BAU and priority as such if you require a CRQ for your stakeholders, you will be responsible for its creation.</li>
             <li>
                 The following patch schedule will be adhered to going forward for further patch installations:
             </li>
@@ -267,10 +267,10 @@ def send_email(conn: smtplib.SMTP, sender: Address, receivers: list, cc: list, s
 
     conn.send_message(message)
 
-def email_owners(context: dict, data: dict={}, email_type: str="default", patch_schedule: str="2nd Thu"):
+def email_owners(context: dict, data: dict={}, email_type: str="default", patch_schedule: list=["2nd Thu"]):
     server = create_SMTP_connection()
     try:
-        if email_type =="default":
+        if email_type == "default":
             keys = data.keys()
             for key in keys:
                 df = data[key]
@@ -279,18 +279,18 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                 result = create_to_cc_receipients(context=context, df=df)
                 sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
                 send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
-                break
-        else:
-            keys = data[patch_schedule].keys()
-            for key in keys:
-                df = data[key]
-                table =  format_table(df)
-                date = next(df.iterrows())[1]["date"]
-                message = day_before.format(host_table=table, date_scheduled=date, style_rulesets=style)
-                result = create_to_cc_receipients(context=context, df=df)
-                sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
-                send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
-                break
+        elif email_type == 'collection':
+            for patch_date in patch_schedule:
+                keys = data[patch_date].keys()
+                sub_dict = data[patch_date]
+                for key in keys:
+                    df = sub_dict[key]
+                    table =  format_table(df, notifcation_type=email_type)
+                    date = next(df.iterrows())[1]["patch_date"]
+                    message = day_before.format(host_table=table, date_scheduled=date, style_rulesets=style)
+                    result = create_to_cc_receipients(context=context, df=df)
+                    sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
+                    send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
     except Exception as e:
         close_SMTP_connection(server)
         traceback.print_exc()
@@ -370,7 +370,7 @@ def format_table(df: DataFrame, notifcation_type = "default"):
                     <th>Installable Updates - Security</th>
                     <th>Installable Updates - Bug Fixes</th>
                     <th>Installable Updates - Enhancements</th>
-                    <th>Instllable Packages</th>
+                    <th>Installable Packages</th>
                     <th>OS</th>
                 </tr>
             </thead>
