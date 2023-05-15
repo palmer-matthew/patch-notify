@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+
 import sys
+from argparse import ArgumentParser
 from src.utils.api import get_data_basic_auth, simulate_api_call
 from src.utils.config import load_env_as_dict
 from src.utils.parse import output_json,reformat_structure,populate_external,csv_to_json,json_to_dataframe,extrapolate,remove_uneligible,add_patching_dates
 from src.utils.date import find_patch_dates
+from src.utils.email import email_owners
 
 ROUTES = {
     "all_hosts": 'api/hosts?per_page=all',
@@ -118,34 +122,39 @@ def main():
             print("Please provide the path to the environment variables file")
             sys.exit()
         else:
-            # Intialize the program instance with environment variables needed for functionality
+            # # Intialize the program instance with environment variables needed for functionality
             context = initialize_context(path)
 
-            # API Calls to the Local Application to retieve information on hosts and host collections
-            hosts = retrieve_hosts(context)
-            host_collections = retrieve_host_collections(context)
+            # # API Calls to the Local Application to retieve information on hosts and host collections
+            # hosts = retrieve_hosts(context)
+            # host_collections = retrieve_host_collections(context)
 
-            # Make modification to the structure of JSON Data retrieved from the application instance 
-            reformat_hosts = reformat_structure(hosts,host_collections)
+            # # Make modification to the structure of JSON Data retrieved from the application instance 
+            # reformat_hosts = reformat_structure(hosts,host_collections)
 
-            # Add information from an external data source to the JSON Data
-            external_data = csv_to_json(context['DATA_FILE'])
-            data = populate_external(external_data, reformat_hosts)
+            # # Add information from an external data source to the JSON Data
+            # external_data = csv_to_json(context['TEST_FILE'])
+            # data = populate_external(external_data, reformat_hosts)
 
-            # Add patch schedule information to the JSON Data
-            date_map = find_patch_dates()
-            data = add_patching_dates(data, date_map)
+            # # Add patch schedule information to the JSON Data
+            # date_map = find_patch_dates()
+            # data = add_patching_dates(data, date_map)
+            # output_json(data, "src/data/complete.json")
 
-            # Remove hosts that are not eligible for patching this cycle.
-            data = remove_uneligible(data)
+            # # Remove hosts that are not eligible for patching this cycle.
+            # data = remove_uneligible(data)
 
             # extrapolate(data, "collection")
 
             # Testing Puposes
-            # complete_data = simulate_api_call("src/data/complete_data.json")
-            # complete_data = remove_uneligible(complete_data)
-            # output_json(complete_data, "src/data/removed.json")
-            # extrapolate(complete_data, "collection")
+            data = simulate_api_call("src/data/complete.json")
+            data = remove_uneligible(data)
+            # output_json(data, "src/data/removed.json")
+            sep_data  = extrapolate(data)
+            # print(sep_data)
+
+            email_owners(context=context,data=sep_data)
+            pass
             
 
 
