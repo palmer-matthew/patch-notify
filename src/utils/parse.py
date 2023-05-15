@@ -135,7 +135,7 @@ def add_patching_dates(data: dict={}, date_map: dict={}):
         date = MAP[id]
         host['patch_schedule'] = date
         if not date == 'TBD':
-            host["patch_date"] = date_map[date].strftime("%a - %b %d, %Y")
+            host["patch_date"] = date_map[date].strftime("%A, %b %d %Y")
         else:
             host["patch_date"] = date_map[date]
 
@@ -168,6 +168,7 @@ def extrapolate(data: dict={}, filter: str="default"):
     """
     """
     main_df =  json_to_dataframe(data['results'])
+    main_df.set_index("host_id")
 
     if filter == "default":
         sort_by = main_df["additional_contacts"].unique()
@@ -175,16 +176,16 @@ def extrapolate(data: dict={}, filter: str="default"):
         result = {}
 
         for contacts in sort_by:
-            result[contacts] = main_df[main_df["additional_contacts"] == contacts].sort_values(by="host_collection")
+            result[contacts] = main_df[main_df["additional_contacts"] == contacts].sort_values(by="patch_schedule")
         
         return result
     elif filter == "collection":
-        sort_by = main_df["host_collection"].unique()
+        sort_by = main_df["patch_schedule"].unique()
 
         result = {}
 
         for collection in sort_by:
-            sample = main_df[main_df["host_collection"] == collection]
+            sample = main_df[main_df["patch_schedule"] == collection]
 
             sort_ls = sample["additional_contacts"].unique()
 
