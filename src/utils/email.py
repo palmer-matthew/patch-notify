@@ -277,8 +277,9 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                 table =  format_table(df)
                 message = main_notif.format(host_table=table, style_rulesets=style)
                 result = create_to_cc_receipients(context=context, df=df)
+                print(result)
                 sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
-                send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
+                #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
         elif email_type == 'collection':
             for patch_date in patch_schedule:
                 keys = data[patch_date].keys()
@@ -289,8 +290,9 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                     date = next(df.iterrows())[1]["patch_date"]
                     message = day_before.format(host_table=table, date_scheduled=date, style_rulesets=style)
                     result = create_to_cc_receipients(context=context, df=df)
+                    print(result)
                     sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
-                    send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
+                    #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
     except Exception as e:
         close_SMTP_connection(server)
         traceback.print_exc()
@@ -302,7 +304,7 @@ def create_to_cc_receipients(context: dict, df: DataFrame):
     owner_split = first_row["owner_email"].split('@')
     add_con = first_row["additional_contacts"]
     receipients.append(Address(first_row["owner"], owner_split[0], domain=domain))
-    for email in add_con.split(sep="|"):
+    for email in add_con.split(sep=","):
         email_split = email.split("@")
         receipients.append(Address(username=email_split[0], domain=domain))
 
