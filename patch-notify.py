@@ -32,7 +32,7 @@ def main():
     reformat_hosts = reformat_structure(hosts, host_collections)
 
     # Add information from an external data source to the JSON Data
-    external_data = csv_to_json(context['TEST_FILE'])
+    external_data = csv_to_json(context['DATA_FILE'])
     data = populate_external(external_data, reformat_hosts)
 
     # Add patch schedule information to the JSON Data

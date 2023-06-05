@@ -104,6 +104,8 @@ def populate_external(data: dict=None, hosts: list=[]):
 
         if record['Asset Name'] == "Not Onboarded":
             continue
+        elif record['Asset Name'] not in HOST_MAP:
+            continue
 
         index = HOST_MAP[record["Asset Name"]]
         hosts['results'][index]["additional_contacts"] = record["Additional Contacts"]
@@ -196,17 +198,4 @@ def extrapolate(data: dict={}, filter: str="default"):
 
             result[collection] = inner_result 
 
-        return result
-
-
-# Testing Purposes
-# from api import simulate_api_call
-# host_collection = simulate_api_call('../json-foreman/host_collection.json')
-# hosts_data = simulate_api_call('../json-foreman/hosts.json')
-# reformat_structure(hosts_data,host_collection)
-# items_to_display=["host_id", "hostname" , "ip_address","location", "model", "owner", "os", "lifecycle_environment", \
-#            "security_count", "bugfix_count", "enhancement_count", "package_up_count", "host_collection", "host_collection_id", \
-#            "additional_contacts", "owner_email", "presentation_name"]
-# result[contacts] = main_df[main_df["additional_contacts"] == contacts].filter(items=['hostname', "additional_contacts", "host_collection"]).sort_values(by="host_collection")
-
-        
+        return result    
