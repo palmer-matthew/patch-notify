@@ -273,11 +273,10 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
         if email_type == "default":
             keys = data.keys()
             for key in keys:
-                df = data[key]
-                table =  format_table(df)
+                records = data[key]
+                table =  format_table(records)
                 message = main_notif.format(host_table=table, style_rulesets=style)
-                result = create_to_cc_receipients(context=context, df=df)
-                print(result)
+                result = create_to_cc_receipients(context=context, records=records)
                 sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
                 #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
         elif email_type == 'collection':
@@ -285,22 +284,21 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                 keys = data[patch_date].keys()
                 sub_dict = data[patch_date]
                 for key in keys:
-                    df = sub_dict[key]
-                    table =  format_table(df, notifcation_type=email_type)
-                    date = next(df.iterrows())[1]["patch_date"]
+                    records = sub_dict[key]
+                    table =  format_table(records, notifcation_type=email_type)
+                    date = records[0]["patch_date"]
                     message = day_before.format(host_table=table, date_scheduled=date, style_rulesets=style)
-                    result = create_to_cc_receipients(context=context, df=df)
-                    print(result)
+                    result = create_to_cc_receipients(context=context, records=records)
                     sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
                     #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
     except Exception as e:
         close_SMTP_connection(server)
         traceback.print_exc()
 
-def create_to_cc_receipients(context: dict, df: DataFrame):
+def create_to_cc_receipients(context: dict, records: list):
     domain = context["SMTP_DOMAIN"]
     receipients = []
-    first_row = next(df.iterrows())[1]
+    first_row = records[0]
     owner_split = first_row["owner_email"].split('@')
     add_con = first_row["additional_contacts"]
     receipients.append(Address(first_row["owner"], owner_split[0], domain=domain))
@@ -324,7 +322,7 @@ def create_to_cc_receipients(context: dict, df: DataFrame):
     
     return { "recs": receipients, "cc": cc   }
 
-def format_table(df: DataFrame, notifcation_type = "default"):
+def format_table(records: list, notifcation_type = "default"):
     if notifcation_type == "default":
         tableformat = """
         <table class="table" border=0 cellspacing="3" cellpadding="0">
@@ -347,18 +345,18 @@ def format_table(df: DataFrame, notifcation_type = "default"):
         </table>
         """
         rows = ""
-        for i in df.index:
+        for i in records:
             row = f"""
                 <tr>
-                    <td>{df.loc[i, "presentation_name"]}</td>
-                    <td>{df.loc[i, "ip_address"]}</td>
-                    <td>{df.loc[i, "security_count"]}</td>
-                    <td>{df.loc[i, "bugfix_count"]}</td>
-                    <td>{df.loc[i, "enhancement_count"]}</td>
-                    <td>{df.loc[i, "package_count"]}</td>
-                    <td>{df.loc[i, "os"]}</td>
-                    <td>{df.loc[i, "lifecycle_environment"]}</td>
-                    <td>{df.loc[i, "patch_date"]}</td>
+                    <td>{i["presentation_name"]}</td>
+                    <td>{i["ip_address"]}</td>
+                    <td>{i["security_count"]}</td>
+                    <td>{i["bugfix_count"]}</td>
+                    <td>{i["enhancement_count"]}</td>
+                    <td>{i["package_count"]}</td>
+                    <td>{i["os"]}</td>
+                    <td>{i["lifecycle_environment"]}</td>
+                    <td>{i["patch_date"]}</td>
                 </tr>
             """
             rows += row
@@ -382,16 +380,16 @@ def format_table(df: DataFrame, notifcation_type = "default"):
         </table>
         """
         rows = ""
-        for i in df.index:
+        for i in records:
             row = f"""
                 <tr>
-                    <td>{df.loc[i, "presentation_name"]}</td>
-                    <td>{df.loc[i, "ip_address"]}</td>
-                    <td>{df.loc[i, "security_count"]}</td>
-                    <td>{df.loc[i, "bugfix_count"]}</td>
-                    <td>{df.loc[i, "enhancement_count"]}</td>
-                    <td>{df.loc[i, "package_count"]}</td>
-                    <td>{df.loc[i, "os"]}</td>
+                    <td>{i["presentation_name"]}</td>
+                    <td>{i["ip_address"]}</td>
+                    <td>{i["security_count"]}</td>
+                    <td>{i["bugfix_count"]}</td>
+                    <td>{i["enhancement_count"]}</td>
+                    <td>{i["package_count"]}</td>
+                    <td>{i["os"]}</td>
                 </tr>
             """
             rows += row
