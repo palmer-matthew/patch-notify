@@ -1,18 +1,35 @@
 import calendar
 from datetime import datetime
 
-def find_patch_dates():
+def find_patch_dates(gyear = None, gmonth = None):
     """
     """
-    cal = calendar.Calendar()
-    month = cal.monthdatescalendar(datetime.today().year, datetime.today().month)
+    if gyear is None:
+        gyear = datetime.today().year
+    if gmonth is None:
+        gmonth = datetime.today().month
 
+    cal = calendar.Calendar()
+    month = cal.monthdatescalendar(gyear,gmonth)
     monthly_patch_dates = {}
-    tuesday = 0
-    thursday = 0
+
+    first_week = month[0]
+    for i in first_week:
+        if i.weekday() == calendar.TUESDAY and i.day == 1:
+            tuesday = -1
+            thursday = -1
+            break
+        elif (i.weekday() == calendar.THURSDAY or i.weekday == calendar.WEDNESDAY) and i.day == 1:
+            tuesday = 0
+            thursday = -1
+            break
+        else:
+            tuesday = 0
+            thursday = 0
+    
     for week in month:
         for day in week:
-            if day.month == datetime.today().month:
+            if day.month == gmonth:
                     if day.weekday() == calendar.TUESDAY:
                         tuesday += 1
                         if tuesday == 3:
