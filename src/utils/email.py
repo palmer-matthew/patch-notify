@@ -238,6 +238,31 @@ main_notif = """
 </html>
 """
 
+team_notif = """
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+    <title>title</title>
+    <style>        
+        {style_rulesets}
+    </style>
+</head>
+<body>
+    <div>
+        <br><br> Good Day Team,
+        <br><br> Please be advised of the following servers eligible for patching :
+        <br><br><b> Scheduled Time: </b> {patch_date} | 8:30 PM to 7:00 AM GMT-5 [JA Time]
+    </div>
+    <div style='margin: 20px 0px 10px 0px;'>
+        {patch_table}
+    </div>
+    <div class="footer">
+        <br><br> Please perform pre-validation checks on these servers before their scheduled date.
+        <br><br> Thank you, <br><b> Group IT Infrastructure </b>
+        <br><br><b>NB. This email is an automated message. Please do not reply to this email.</b>
+    </div>
+</body>
+</html>"""
 # TEXT TEMPLATES 
 text_placeholder = "TEXT IN CASE HTML FAILS TO DISPLAY"
 
@@ -278,7 +303,7 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                 message = main_notif.format(host_table=table, style_rulesets=style)
                 result = create_to_cc_receipients(context=context, records=records)
                 sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
-                #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
+                send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - Upcoming Month Schedule [DO NOT REPLY]", body=message)
         elif email_type == 'collection':
             for patch_date in patch_schedule:
                 keys = data[patch_date].keys()
@@ -290,7 +315,7 @@ def email_owners(context: dict, data: dict={}, email_type: str="default", patch_
                     message = day_before.format(host_table=table, date_scheduled=date, style_rulesets=style)
                     result = create_to_cc_receipients(context=context, records=records)
                     sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
-                    #send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
+                    send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Monthly OS Patch Updates - [REMINDER - DO NOT REPLY]", body=message)
     except Exception as e:
         close_SMTP_connection(server)
         traceback.print_exc()
@@ -360,6 +385,45 @@ def format_table(records: list, notifcation_type = "default"):
                 </tr>
             """
             rows += row
+    elif notifcation_type == "team":
+        tableformat = """
+        <table class="table" border=0 cellspacing="3" cellpadding="0">
+            <thead>
+                <tr>
+                    <th>Hostname</th>
+                    <th>IP Address</th>
+                    <th>Installable Updates - Security</th>
+                    <th>Installable Updates - Bug Fixes</th>
+                    <th>Installable Updates - Enhancements</th>
+                    <th>Installable Packages</th>
+                    <th>OS</th>
+                    <th>Lifecycle Environment</th>
+                    <th>Patch Date Scheduled</th>
+                    <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+            {rows}
+            </tbody>
+        </table>
+        """
+        rows = ""
+        for i in records:
+            row = f"""
+                <tr>
+                    <td>{i["presentation_name"]}</td>
+                    <td>{i["ip_address"]}</td>
+                    <td>{i["security_count"]}</td>
+                    <td>{i["bugfix_count"]}</td>
+                    <td>{i["enhancement_count"]}</td>
+                    <td>{i["package_count"]}</td>
+                    <td>{i["os"]}</td>
+                    <td>{i["lifecycle_environment"]}</td>
+                    <td>{i["patch_date"]}</td>
+                    <td>{i["owner"]}</td>
+                </tr>
+            """
+            rows += row
     else:
         tableformat = """
         <table class="table" border=0 cellspacing="3" cellpadding="0">
@@ -394,3 +458,37 @@ def format_table(records: list, notifcation_type = "default"):
             """
             rows += row
     return tableformat.format(rows=rows)
+
+def notify_patch_team(context: dict, data: dict={}, email_type: str="collection", patch_schedule: list=["2nd Thu"]):
+    server = create_SMTP_connection()
+    try:
+        if email_type == 'collection':
+            for patch_date in patch_schedule:
+                keys = data[patch_date].keys()
+                sub_dict = data[patch_date]
+                all_hosts_scheduled = []
+                for key in keys:
+                    all_hosts_scheduled = all_hosts_scheduled + sub_dict[key]
+                table =  format_table(all_hosts_scheduled, notifcation_type="team")
+                date = all_hosts_scheduled[0]["patch_date"]
+                message = team_notif.format(patch_table=table, patch_date=date, style_rulesets=style)
+                result = send_to_team(context=context)
+                sender = Address(context["SMTP_SENDER_NAME"], context["SMTP_USER"], context["SMTP_DOMAIN"])
+                send_email(conn=server, sender=sender, receivers=result["recs"], cc=result["cc"], subject="Upcoming Patch Cycle Server Listing - [DO NOT REPLY]", body=message)
+    except Exception as e:
+        close_SMTP_connection(server)
+        traceback.print_exc()
+
+def send_to_team(context: dict):
+    domain = context["SMTP_DOMAIN"]
+    receipients = []
+    cc_3 = context["CC_3_USER"]
+    receipients.append(Address('', cc_3.split("@")[0], domain))
+
+    cc = []
+    cc_1 = context["CC_1_USER"]
+    cc.append(Address(' '.join(cc_1.split(sep='.')), cc_1, domain))
+    cc_2 = context["CC_2_USER"]
+    cc.append(Address(' '.join(cc_2.split(sep='.')), cc_2, domain))
+    
+    return { "recs": receipients, "cc": cc  }

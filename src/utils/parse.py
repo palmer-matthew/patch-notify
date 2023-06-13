@@ -143,11 +143,15 @@ def add_patching_dates(data: dict={}, date_map: dict={}):
 
     return data
 
-def remove_uneligible(data: dict={}):
+def remove_uneligible(data: dict={}, exclusion: list=[]):
     """
     """
     new_lst = []
     for host in data['results']:
+
+        if not type(host['host_collection_id']) == int:
+            continue
+        
         if host['security_count'] > 0:
             new_lst.append(host)
             continue
@@ -164,7 +168,20 @@ def remove_uneligible(data: dict={}):
             new_lst.append(host)
             continue
 
-    return {'results': new_lst }
+    # Exclusion of Patch Dates
+    if exclusion == []:
+        return {'results': new_lst }
+    
+    final = []
+    for host in new_lst:
+        found = False
+        for patch_schedule in exclusion:
+            if host["patch_schedule"] == patch_schedule:
+                found = True
+        if not found:
+            final.append(host)
+
+    return {'results': final }
 
 def extrapolate(data: dict={}, filter: str="default"):
     """

@@ -6,15 +6,17 @@ from src.utils.api import retrieve_hosts, retrieve_host_collections,simulate_api
 from src.utils.config import initialize_context
 from src.utils.parse import reformat_structure,populate_external,csv_to_json,extrapolate,remove_uneligible,add_patching_dates,output_json
 from src.utils.date import find_patch_dates
-from src.utils.email import email_owners
+from src.utils.email import email_owners, notify_patch_team
 
 def main():
     # Initialize Object to conduct argument handling
     parser = ArgumentParser()
 
     parser.add_argument('-c', '--context', help="Path to Environment Variable File")
-    parser.add_argument('-f', '--filter', choices=["default", "collection"], default="default", help="Filter used for data extrapolation and email delivery")
+    parser.add_argument('-f', '--filter', choices=["default", "collection"], help="Filter used for data extrapolation and email delivery")
     parser.add_argument('-d', '--dates', choices=["2nd Thu", "3rd Tue", "3rd Thu", "4th Tue", "4th Thu"], metavar="\'2nd Thu\'", nargs="+")
+    parser.add_argument('-n', '--notify-team', action="store_true")
+    parser.add_argument('-e', '--exclusions', choices=["2nd Thu", "3rd Tue", "3rd Thu", "4th Tue", "4th Thu"], metavar="\'2nd Thu\'", nargs="+")
 
     args = parser.parse_args()
 
@@ -40,13 +42,24 @@ def main():
     data = add_patching_dates(data, date_map)
 
     # Remove hosts that are not eligible for patching this cycle.
-    data = remove_uneligible(data)
+    if args.exclusions:
+        data = remove_uneligible(data, args.exclusions)
+    else:
+        data = remove_uneligible(data)
 
-    if args.filter:
-        # data = simulate_api_call("src/data/removed.json")
+    if args.filter and args.notify_team:
         sep_data  = extrapolate(data, filter=args.filter)
-        output_json(sep_data,'src/data/nformat.json')
-        # email_owners(context=context,data=sep_data,email_type=args.filter,patch_schedule=args.dates)
+        email_owners(context=context,data=sep_data,email_type=args.filter,patch_schedule=args.dates)
+        notify_patch_team(context=context,data=sep_data,email_type=args.filter,patch_schedule=args.dates)
+    elif args.filter:
+        sep_data  = extrapolate(data, filter=args.filter)
+        email_owners(context=context,data=sep_data,email_type=args.filter,patch_schedule=args.dates)
+    elif args.notify_team:
+        sep_data  = extrapolate(data, filter='collection')
+        notify_patch_team(context=context,data=sep_data,email_type='collection',patch_schedule=args.dates)
+    
+    
+
             
 if __name__ == "__main__":
     main()
