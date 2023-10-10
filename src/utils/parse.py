@@ -110,7 +110,7 @@ def populate_external(data: dict=None, hosts: list=[]):
         index = HOST_MAP[record["Asset Name"]]
         hosts['results'][index]["additional_contacts"] = record["Additional Contacts"]
         hosts['results'][index]["owner"] = record["Business Owner"]
-        hosts['results'][index]["owner_email"] = record["Email Address"]
+        hosts['results'][index]["owner_email"] = record["Manager Email Address"]
         hosts['results'][index]["presentation_name"] = record["Host Name"]
         hosts['results'][index]["ip_address"] = record["IP Address"]
     

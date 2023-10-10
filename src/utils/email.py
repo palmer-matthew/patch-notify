@@ -326,7 +326,7 @@ def create_to_cc_receipients(context: dict, records: list):
     first_row = records[0]
     owner_split = first_row["owner_email"].split('@')
     add_con = first_row["additional_contacts"]
-    receipients.append(Address(first_row["owner"], owner_split[0], domain=domain))
+    receipients.append(Address(username=owner_split[0], domain=domain))
     for email in add_con.split(sep=","):
         email_split = email.split("@")
         receipients.append(Address(username=email_split[0], domain=domain))
