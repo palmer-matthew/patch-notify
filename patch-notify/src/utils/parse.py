@@ -128,7 +128,8 @@ def add_patching_dates(data: dict={}, date_map: dict={}):
         6: '3rd Thu',
         7: '4th Tue',
         8: '4th Thu',
-        9: 'TBD'
+        9: 'TBD',
+        10: 'TBD'
     }
 
     for host in data['results']:
