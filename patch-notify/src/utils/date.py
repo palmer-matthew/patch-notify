@@ -1,48 +1,42 @@
 import calendar
 from datetime import datetime
 
-def find_patch_dates(gyear = None, gmonth = None):
-    """
-    """
-    if gyear is None:
-        gyear = datetime.today().year
-    if gmonth is None:
-        gmonth = datetime.today().month
+def find_patch_dates(year:int = None, month:int = None):
+    if year is None:
+        year = datetime.today().year
+    if month is None:
+        month = datetime.today().month
 
-    cal = calendar.Calendar()
-    month = cal.monthdatescalendar(gyear,gmonth)
-    monthly_patch_dates = {}
+    calendarInstance = calendar.Calendar()
+    calendarMonth = calendarInstance.monthdatescalendar(year,month)
+    patchDatesForMonth = {}
 
-    first_week = month[0]
-    for i in first_week:
-        if i.weekday() == calendar.TUESDAY and i.day == 1:
-            tuesday = -1
-            thursday = -1
-            break
-        elif (i.weekday() == calendar.THURSDAY or i.weekday == calendar.WEDNESDAY) and i.day == 1:
-            tuesday = 0
-            thursday = -1
-            break
-        else:
-            tuesday = 0
-            thursday = 0
+    firstDayInFirstWeek = calendarMonth[0][0]
     
-    for week in month:
+    if firstDayInFirstWeek.weekday() != calendar.MONDAY or firstDayInFirstWeek.weekday() != calendar.SUNDAY:
+        calendarMonth.pop(0)
+    
+    tuesdayPositionInMonth = 0
+    thursdayPositionInMonth = 0
+    
+    for week in calendarMonth:
         for day in week:
-            if day.month == gmonth:
+            if day.month == month:
                     if day.weekday() == calendar.TUESDAY:
-                        tuesday += 1
-                        if tuesday == 3:
-                            monthly_patch_dates["3rd Tue"] = day
-                        elif tuesday == 4:
-                            monthly_patch_dates["4th Tue"] = day
+                        tuesdayPositionInMonth += 1
+                        if tuesdayPositionInMonth == 3:
+                            patchDatesForMonth["3rd Tue"] = day
+                        elif tuesdayPositionInMonth == 4:
+                            patchDatesForMonth["4th Tue"] = day
                     if day.weekday() == calendar.THURSDAY:
-                        thursday += 1
-                        if thursday == 2:
-                            monthly_patch_dates["2nd Thu"] = day
-                        elif thursday == 3:
-                            monthly_patch_dates["3rd Thu"] = day
-                        elif thursday == 4:
-                            monthly_patch_dates["4th Thu"] = day
-    monthly_patch_dates['TBD'] = 'TBD'
-    return monthly_patch_dates
+                        thursdayPositionInMonth += 1
+                        if thursdayPositionInMonth == 2:
+                            patchDatesForMonth["2nd Thu"] = day
+                        elif thursdayPositionInMonth == 3:
+                            patchDatesForMonth["3rd Thu"] = day
+                        elif thursdayPositionInMonth == 4:
+                            patchDatesForMonth["4th Thu"] = day
+    patchDatesForMonth['TBD'] = 'TBD'
+    patchDatesForMonth['Excluded'] = 'Excluded'
+    patchDatesForMonth['Decommissioned'] = 'Decomissioned' 
+    return patchDatesForMonth

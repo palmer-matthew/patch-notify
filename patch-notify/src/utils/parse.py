@@ -128,8 +128,8 @@ def add_patching_dates(data: dict={}, date_map: dict={}):
         6: '3rd Thu',
         7: '4th Tue',
         8: '4th Thu',
-        9: 'TBD',
-        10: 'TBD'
+        9: 'Excluded',
+        10: 'Excluded'
     }
 
     for host in data['results']:
@@ -138,7 +138,7 @@ def add_patching_dates(data: dict={}, date_map: dict={}):
             continue
         date = MAP[id]
         host['patch_schedule'] = date
-        if not date == 'TBD':
+        if not date == 'TBD' and not date == 'Excluded':
             host["patch_date"] = date_map[date].strftime("%A, %b %d %Y")
         else:
             host["patch_date"] = date_map[date]
@@ -149,7 +149,11 @@ def remove_uneligible(data: dict={}, exclusion: list=[]):
     """
     """
     new_lst = []
+    patch_exceptions = ['TBD', 'Excluded']
     for host in data['results']:
+
+        if host['patch_date'] in patch_exceptions:
+            continue
 
         if not type(host['host_collection_id']) == int:
             continue
