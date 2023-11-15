@@ -1,11 +1,13 @@
 name: create-new-release
+run-name: create-release-${{ github.ref_name }}
 on:
     push:
-        branches: stable
-        tags: 'v*.*.*'
+      branches: 
+        - stable
+      tags: 'v*.*.*'
 
     pull_request:
-        branches: stable
+      branches: stable
 
 jobs:
     build-stable-pex-file:
@@ -31,13 +33,13 @@ jobs:
               run: mkdir dist/
 
             - name: Build Pex File From Stable Code
-              run: pex --python=python -f $PWD -r patch-notify/requirements.txt patch-notify -e patch-notify.main -o dist/patch-notify-${{ github.ref }}.pex -v
+              run: pex --python=python -f $PWD -r patch-notify/requirements.txt patch-notify -e patch-notify.main -o dist/patch-notify-${{ github.ref_name }}.pex -v
             
             - name: Upload Pex File as Artifact
               uses: actions/upload-artifact@v3
               with:
-                name: patch-notify.pex
-                path: dist/patch-notify*.pex
+                name: patch-notify-${{ github.ref_name }}.pex
+                path: dist/patch-notify-${{ github.ref_name }}.pex
     
     create-new-release:
         name: Create New Release
@@ -54,13 +56,13 @@ jobs:
               uses: actions/download-artifact@v3
               id: download
               with: 
-                name: patch-notify.pex
+                name: patch-notify-${{ github.ref_name }}.pex
                 path: download/
             
             - name: Create a new release for stable
               uses: softprops/action-gh-release@v1
               with:
-                files: download/patch-notify*.pex
+                files: download/*
 
 
             
