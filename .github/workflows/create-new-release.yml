@@ -1,68 +1,63 @@
 name: create-new-release
+permissions:
+  contents: write
 run-name: create-release-${{ github.ref_name }}
 on:
-    push:
-      branches: 
-        - stable
-      tags: 'v*.*.*'
-
-    pull_request:
-      branches: stable
-
+  push:
+    tags: 'v*.*.*'
 jobs:
     build-stable-pex-file:
-        name: Setting up Python Environment
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+      name: Setting up Python Environment
+      runs-on: ubuntu-latest
+      steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
 
-            - name: Setup Python Environment
-              uses: actions/setup-python@v4
-              with:
-                python-version: '3.11'
-                architecture: x64
-            
-            - name: Install Python Dependencies
-              run: pip install -r build-req.txt
+          - name: Setup Python Environment
+            uses: actions/setup-python@v4
+            with:
+              python-version: '3.11'
+              architecture: x64
+          
+          - name: Install Python Dependencies
+            run: pip install -r build-req.txt
 
-            - name: Build Wheel for Package
-              run: pip wheel -w . .
+          - name: Build Wheel for Package
+            run: pip wheel -w . .
 
-            - name: Create Dist Folder
-              run: mkdir dist/
+          - name: Create Dist Folder
+            run: mkdir dist/
 
-            - name: Build Pex File From Stable Code
-              run: pex --python=python -f $PWD -r patch-notify/requirements.txt patch-notify -e patch-notify.main -o dist/patch-notify-${{ github.ref_name }}.pex -v
-            
-            - name: Upload Pex File as Artifact
-              uses: actions/upload-artifact@v3
-              with:
-                name: patch-notify-${{ github.ref_name }}.pex
-                path: dist/patch-notify-${{ github.ref_name }}.pex
+          - name: Build Pex File From Stable Code
+            run: pex --python=python -f $PWD -r patch-notify/requirements.txt patch-notify -e patch-notify.main -o dist/patch-notify-${{ github.ref_name }}.pex -v
+          
+          - name: Upload Pex File as Artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: patch-notify.pex
+              path: dist/patch-notify-${{ github.ref_name }}.pex
     
     create-new-release:
-        name: Create New Release
-        needs: build-stable-pex-file
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
-            
-            - name: Create download folder
-              run: mkdir download/
+      name: Create New Release
+      needs: build-stable-pex-file
+      runs-on: ubuntu-latest
+      steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
+          
+          - name: Create download folder
+            run: mkdir download/
 
-            - name: Download Pex File 
-              uses: actions/download-artifact@v3
-              id: download
-              with: 
-                name: patch-notify-${{ github.ref_name }}.pex
-                path: download/
-            
-            - name: Create a new release for stable
-              uses: softprops/action-gh-release@v1
-              with:
-                files: download/*
+          - name: Download Pex File 
+            uses: actions/download-artifact@v3
+            with: 
+              name: patch-notify.pex
+              path: ./download/
+          
+          - name: Create a new release for stable
+            uses: softprops/action-gh-release@v1
+            with:
+              files: ./download/patch-notify-${{ github.ref_name }}.pex
 
 
             
