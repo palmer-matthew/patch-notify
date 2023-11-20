@@ -1,0 +1,20 @@
+name: Run Test
+run-name: Running Tests On Branch ${{ github.ref_name }}
+on:
+    push:
+jobs:
+    run-tests:
+        name: Running Unit Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Setup Python Environment
+              uses: actions/setup-python@v4
+              with:
+                python-version: '3.11'
+                architecture: x64
+            
+            - name: Running Tests
+              run: python -m unittest discover -s patch-notify/tests/
