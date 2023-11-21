@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sys, os
 from argparse import ArgumentParser
 from src.utils.api import retrieve_hosts, retrieve_host_collections,simulate_api_call
