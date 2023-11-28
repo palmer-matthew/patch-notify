@@ -45,5 +45,28 @@ class TestOctSchedule(unittest.TestCase):
         dates = find_patch_dates(2023,10)
         self.assertEqual(dates['4th Tue'], date(2023,10,24), 'Found Date Should be Equal to October 24, 2023')
 
+
+class TestJuneSchedule(unittest.TestCase):
+    def testSecondThu(self):
+        dates = find_patch_dates(2023,6)
+        self.assertEqual(dates['2nd Thu'], date(2023,6,15), 'Found Date Should be Equal to June 15, 2023')
+    
+    def testThirdThu(self):
+        dates = find_patch_dates(2023,6)
+        self.assertEqual(dates['3rd Thu'], date(2023,6,22), 'Found Date Should be Equal to June 22, 2023')
+
+    def testFourthThu(self):
+        dates = find_patch_dates(2023,6)
+        self.assertEqual(dates['4th Thu'], date(2023,6,29), 'Found Date Should be Equal to June 29, 2023')
+    
+    def testThirdTue(self):
+        dates = find_patch_dates(2023,6)
+        self.assertEqual(dates['3rd Tue'], date(2023,6,20), 'Found Date Should be Equal to June 20, 2023')
+
+    def testFourthTue(self):
+        dates = find_patch_dates(2023,6)
+        self.assertEqual(dates['4th Tue'], date(2023,6,27), 'Found Date Should be Equal to June 27, 2023')
+
+
 if __name__ == '__main__':
     unittest.main()
