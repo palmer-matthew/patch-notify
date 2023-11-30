@@ -1,9 +1,16 @@
-import unittest, calendar
+import unittest
 from datetime import date
 from src.utils.date import find_patch_dates
 
 ## The main aim of the test suite is to test if the find patch dates function is working correctly 
 ## even with the variation in the months of a year
+
+class TestFunctionResult(unittest.TestCase):
+    def testIfResultIsDict(self):
+        pass
+
+    def testIfKeysExists(self):
+        pass
 
 class TestNovSchedule(unittest.TestCase):
     def testSecondThu(self):
