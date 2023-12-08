@@ -7,7 +7,8 @@ from src.utils.date import find_patch_dates
 
 class TestFunctionResult(unittest.TestCase):
     def testIfResultIsDict(self):
-        pass
+        result = type(find_patch_dates()) is dict
+        self.assertEqual(True, result)
 
     def testIfKeysExists(self):
         pass
