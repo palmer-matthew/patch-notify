@@ -152,10 +152,10 @@ def remove_uneligible(data: dict={}, exclusion: list=[]):
     patch_exceptions = ['TBD', 'Excluded']
     for host in data['results']:
 
-        if host['patch_date'] in patch_exceptions:
+        if not type(host['host_collection_id']) == int:
             continue
 
-        if not type(host['host_collection_id']) == int:
+        if host['patch_date'] in patch_exceptions:
             continue
         
         if host['security_count'] > 0:
