@@ -1,4 +1,4 @@
-import calendar
+import calendar, json
 from datetime import datetime
 
 def find_patch_dates(year:int = None, month:int = None):
@@ -40,3 +40,17 @@ def find_patch_dates(year:int = None, month:int = None):
     patchDatesForMonth['Excluded'] = 'Excluded'
     patchDatesForMonth['Decommissioned'] = 'Decomissioned' 
     return patchDatesForMonth
+
+def parse_patch_dates(path: str):
+    try:
+        with open(path, 'r') as file:
+            file_data = file.read()
+            dates = json.loads(file_data)
+            for date in dates.keys():
+                dates[date] = datetime(dates[date][0], dates[date][1], dates[date][2])
+    except:
+        dates = {}
+    dates['TBD'] = 'TBD'
+    dates['Excluded'] = 'Excluded'
+    dates['Decommissioned'] = 'Decomissioned' 
+    return dates

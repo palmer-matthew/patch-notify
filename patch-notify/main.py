@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from src.utils.api import retrieve_hosts, retrieve_host_collections,simulate_api_call
 from src.utils.config import initialize_context
 from src.utils.parse import reformat_structure,populate_external,csv_to_json,extrapolate,remove_uneligible,add_patching_dates,output_json
-from src.utils.date import find_patch_dates
+from src.utils.date import find_patch_dates, parse_patch_dates
 from src.utils.email import email_owners, notify_patch_team
 
 def main():
@@ -15,6 +15,7 @@ def main():
     parser.add_argument('-d', '--dates', choices=["2nd Thu", "3rd Tue", "3rd Thu", "4th Tue", "4th Thu"], metavar="\'2nd Thu\'", nargs="+")
     parser.add_argument('-n', '--notify-team', action="store_true")
     parser.add_argument('-e', '--exclusions', choices=["2nd Thu", "3rd Tue", "3rd Thu", "4th Tue", "4th Thu"], metavar="\'2nd Thu\'", nargs="+")
+    parser.add_argument('-s', '--specify-dates', help="Path to Specified Patch Schedule File")
 
     args = parser.parse_args()
 
@@ -36,7 +37,10 @@ def main():
     data = populate_external(external_data, reformat_hosts)
 
     # Add patch schedule information to the JSON Data
-    date_map = find_patch_dates()
+    if args.specify_dates:
+        date_map = parse_patch_dates(args.specify_dates)
+    else:
+        date_map = find_patch_dates()
     data = add_patching_dates(data, date_map)
 
     # Remove hosts that are not eligible for patching this cycle.
