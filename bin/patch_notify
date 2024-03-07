@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+import sys
+
+sys.path.insert(0, '/usr/share/patch-notify/patch-notify')
+
+try:
+    import main
+    main.main(sys.argv[1:])
+except KeyboardInterrupt, e:
+    print("\n\nExiting the script due to User Intervention", file=sys.stderr)
+    sys.exit(1)
+

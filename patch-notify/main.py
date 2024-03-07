@@ -59,10 +59,7 @@ def main():
     elif args.notify_team:
         sep_data  = extrapolate(data, filter='collection')
         notify_patch_team(context=context,data=sep_data,email_type='collection',patch_schedule=args.dates)
-    
-    
-
-            
+        
 if __name__ == "__main__":
     main()
             
