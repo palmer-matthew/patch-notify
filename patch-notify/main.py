@@ -1,12 +1,12 @@
 import sys, os
 from argparse import ArgumentParser
-from src.utils.api import retrieve_hosts, retrieve_host_collections,simulate_api_call
+from src.utils.api import retrieve_hosts, retrieve_host_collections
 from src.utils.config import initialize_context
 from src.utils.parse import reformat_structure,populate_external,csv_to_json,extrapolate,remove_uneligible,add_patching_dates,output_json
 from src.utils.date import find_patch_dates, parse_patch_dates
 from src.utils.email import email_owners, notify_patch_team
 
-def main():
+def main(args):
     # Initialize Object to conduct argument handling
     parser = ArgumentParser()
 
@@ -61,7 +61,10 @@ def main():
         notify_patch_team(context=context,data=sep_data,email_type='collection',patch_schedule=args.dates)
         
 if __name__ == "__main__":
-    main()
-            
+    try:
+        main(sys.argv[1:])
+    except KeyboardInterrupt:
+        print("\n\nExiting the script due to User Intervention", file=sys.stderr)
+        sys.exit(1)
         
 

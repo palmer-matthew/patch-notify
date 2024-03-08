@@ -1,8 +1,4 @@
-#!/usr/bin/python3
-
-ACTIVATE_PATH='/usr/share/patch-notify/env/bin/activate_this.py'
-
-exec(open(ACTIVATE_PATH).read(), {'__file__': ACTIVATE_PATH})
+#!<venv path>
 
 import sys
 
