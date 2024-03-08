@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+
+ACTIVATE_PATH='/usr/share/patch-notify/env/bin/activate_this.py'
+
+exec(open(ACTIVATE_PATH).read(), {'__file__': ACTIVATE_PATH})
+
 import sys
 
 sys.path.insert(0, '/usr/share/patch-notify/patch-notify')
@@ -6,7 +11,7 @@ sys.path.insert(0, '/usr/share/patch-notify/patch-notify')
 try:
     import main
     main.main(sys.argv[1:])
-except KeyboardInterrupt, e:
+except KeyboardInterrupt:
     print("\n\nExiting the script due to User Intervention", file=sys.stderr)
     sys.exit(1)
 

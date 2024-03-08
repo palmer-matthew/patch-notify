@@ -2,7 +2,6 @@ import smtplib, traceback
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from pandas import DataFrame
 
 # HTML TEMPLATES
 style = """
